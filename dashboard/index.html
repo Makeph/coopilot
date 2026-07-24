@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17372a">
+  <meta name="description" content="Coopilot, tableau de bord local pour poulailler connecté.">
+  <title>Coopilot | Poulailler connecté</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#" aria-label="Coopilot, accueil">
+      <span class="brand-mark">C</span>
+      <span>Coopilot</span>
+    </a>
+    <nav aria-label="Navigation principale">
+      <button class="nav-item active" data-view="dashboard">Vue générale</button>
+      <button class="nav-item" data-view="door">Porte</button>
+      <button class="nav-item" data-view="resources">Eau et nourriture</button>
+      <button class="nav-item" data-view="health">Santé</button>
+      <button class="nav-item" data-view="settings">Réglages</button>
+    </nav>
+    <div class="connection">
+      <span class="status-dot" aria-hidden="true"></span>
+      <div><strong>ESP32 connecté</strong><small>Mis à jour à l'instant</small></div>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <p class="date" id="today"></p>
+        <h1>Bonjour, tout va bien au poulailler.</h1>
+      </div>
+      <button class="outline-button" id="refresh">Actualiser</button>
+    </header>
+
+    <section class="alert-strip" aria-live="polite">
+      <strong>1 point d'attention</strong>
+      <span>Le niveau d'eau passera sous 25 % demain matin.</span>
+      <button data-scroll="water">Voir</button>
+    </section>
+
+    <section class="metrics" aria-label="Mesures principales">
+      <article>
+        <span>Température</span>
+        <strong><span id="temperature">18,6</span> °C</strong>
+        <small>Zone idéale : 10 à 24 °C</small>
+      </article>
+      <article>
+        <span>Humidité</span>
+        <strong><span id="humidity">61</span> %</strong>
+        <small>Stable depuis 3 heures</small>
+      </article>
+      <article>
+        <span>Activité</span>
+        <strong>Normale</strong>
+        <small>8 poules détectées ce matin</small>
+      </article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel door-panel">
+        <div class="panel-heading">
+          <div><span class="section-label">Accès</span><h2>Porte automatique</h2></div>
+          <span class="state good" id="door-state">Ouverte</span>
+        </div>
+        <div class="door-visual" aria-hidden="true">
+          <div class="sun">07:12</div>
+          <div class="coop"><div class="door open" id="door-graphic"></div></div>
+        </div>
+        <div class="schedule">
+          <div><span>Ouverture</span><strong>Lever du soleil + 10 min</strong></div>
+          <div><span>Fermeture</span><strong>21:38 aujourd'hui</strong></div>
+        </div>
+        <button class="danger-button" id="door-action">Fermer la porte</button>
+        <button class="text-button" id="obstacle-toggle" title="Simuler un obstacle dans le passage — démo de l'anti-pincement">Passage libre</button>
+      </article>
+
+      <article class="panel resources-panel">
+        <div class="panel-heading">
+          <div><span class="section-label">Réserves</span><h2>Eau et nourriture</h2></div>
+          <button class="text-button" id="refill-all">Remplir</button>
+        </div>
+        <div class="tank" id="water">
+          <div class="tank-header"><span>Eau</span><strong id="water-value">32 %</strong></div>
+          <div class="meter"><span id="water-meter" style="width:32%"></span></div>
+          <small>Environ 1,6 jour restant</small>
+        </div>
+        <div class="tank">
+          <div class="tank-header"><span>Nourriture</span><strong id="food-value">68 %</strong></div>
+          <div class="meter"><span id="food-meter" style="width:68%"></span></div>
+          <small>Environ 4,5 jours restants</small>
+        </div>
+      </article>
+
+      <article class="panel health-panel">
+        <div class="panel-heading">
+          <div><span class="section-label">Suivi</span><h2>Santé du groupe</h2></div>
+          <span class="state good">RAS</span>
+        </div>
+        <div class="health-score"><strong>8 / 8</strong><span>poules actives aujourd'hui</span></div>
+        <ul>
+          <li><span>Consommation d'eau</span><strong>Normale</strong></li>
+          <li><span>Passages à la porte</span><strong>17</strong></li>
+          <li><span>Ponte enregistrée</span><strong>5 œufs</strong></li>
+        </ul>
+        <button class="outline-button full" id="health-log">Ajouter une observation</button>
+      </article>
+
+      <article class="panel history-panel">
+        <div class="panel-heading"><div><span class="section-label">24 heures</span><h2>Climat</h2></div></div>
+        <div class="chart" aria-label="Courbe de température simulée">
+          <div class="chart-line"></div>
+          <span class="chart-label top">22°</span><span class="chart-label bottom">14°</span>
+        </div>
+        <div class="chart-legend"><span>Min. 15,2 °C</span><span>Max. 20,1 °C</span></div>
+      </article>
+    </section>
+  </main>
+
+  <dialog id="confirm-dialog">
+    <form method="dialog">
+      <span class="section-label">Commande manuelle</span>
+      <h2 id="dialog-title">Fermer la porte ?</h2>
+      <p id="dialog-copy">Vérifiez qu'aucune poule ne se trouve dans le passage. Le capteur anti-pincement reste actif.</p>
+      <div class="dialog-actions">
+        <button value="cancel" class="outline-button">Annuler</button>
+        <button value="confirm" class="danger-button" id="confirm-door">Confirmer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="sim.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
