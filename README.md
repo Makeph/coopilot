@@ -134,3 +134,26 @@ interlocks reduce risk; they do not remove your responsibility for a safe build.
 ---
 
 MIT-licensed. Runs on your bench and in your garden, with nothing to sign into.
+
+---
+
+<!-- hiddengrid-stack -->
+
+## Part of the HiddenGrid edge stack
+
+Eight small repos, one chain: **control → transport → hub → supervision**. Each one
+stands alone and runs offline; together they are a working local-first stack with no
+cloud account anywhere in it.
+
+| | Repo | What it does |
+|---|---|---|
+| Control  | [greenhouse](https://github.com/Makeph/greenhouse) | ESP32/MicroPython greenhouse controller — light, aeration, heat and pulse irrigation. Safety lives in firmware. |
+| Control → | **coopilot** | ESP32/MicroPython coop controller — pop-hole door with anti-pinch, overcurrent and timeout interlocks. |
+| Transport  | [gorilla-tsc](https://github.com/Makeph/gorilla-tsc) | Lossless Gorilla time-series compression — the codec the edge→hub link stores with. |
+| Hub  | [plexus](https://github.com/Makeph/plexus) | MQTT ingest → compressed store → drift & stuck-sensor detection → one dashboard. Stdlib only. |
+| Product  | [serra](https://github.com/Makeph/serra) | Multi-site supervision for greenhouses & aquaponics, built on plexus. |
+| Industry  | [industrial-retrofit](https://github.com/Makeph/industrial-retrofit) | Real Modbus-TCP off a legacy PLC → clean telemetry, anomalies, live OEE. |
+| Industry  | [line-twin](https://github.com/Makeph/line-twin) | Measured cycle times → the bottleneck → the ROI of fixing it. |
+| Industry  | [kiln-retrofit](https://github.com/Makeph/kiln-retrofit) | Type-K thermocouple → PID ramp/soak → heatwork & pyrometric cones. |
+
+You are here: **coopilot**.
